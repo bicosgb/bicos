@@ -1,0 +1,33 @@
+# /etc/conf.d/bicoscoind: config file for /etc/init.d/bicoscoind
+
+# Config file location
+#BICOSCOIND_CONFIGFILE="/etc/bicoscoin/bicoscoincore.conf"
+
+# What directory to write pidfile to?  (created and owned by $BICOSCOIND_USER)
+#BICOSCOIND_PIDDIR="/var/run/bicoscoind"
+
+# What filename to give the pidfile
+#BICOSCOIND_PIDFILE="${BICOSCOIND_PIDDIR}/bicoscoind.pid"
+
+# Where to write bicoscoind data (be mindful that the blockchain is large)
+#BICOSCOIND_DATADIR="/var/lib/bicoscoind"
+
+# User and group to own bicoscoind process
+#BICOSCOIND_USER="bicoscoin"
+#BICOSCOIND_GROUP="bicoscoin"
+
+# Path to bicoscoind executable
+#BICOSCOIND_BIN="/usr/bin/bicoscoind"
+
+# Nice value to run bicoscoind under
+#BICOSCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#BICOSCOIND_OPTS=""
+
+# The timeout in seconds OpenRC will wait for bicoscoind to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+BICOSCOIND_SIGTERM_TIMEOUT=60

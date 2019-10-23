@@ -1,0 +1,22 @@
+[Unit]
+Description=BICOScoin's distributed currency daemon
+After=network.target
+
+[Service]
+User=bicoscoin
+Group=bicoscoin
+
+Type=forking
+PIDFile=/var/lib/bicoscoind/bicoscoind.pid
+ExecStart=/usr/bin/bicoscoind -daemon -pid=/var/lib/bicoscoind/bicoscoind.pid \
+-conf=/etc/bicoscoin/bicoscoincore.conf -datadir=/var/lib/bicoscoind -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

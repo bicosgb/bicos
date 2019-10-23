@@ -1,0 +1,6 @@
+usr/local/bin/bicoscoin-qt usr/bin
+share/pixmaps/bicoscoin32.xpm usr/share/pixmaps
+share/pixmaps/bicoscoin16.xpm usr/share/pixmaps
+share/pixmaps/bicoscoin128.png usr/share/pixmaps
+debian/bicoscoin-qt.desktop usr/share/applications
+debian/bicoscoin-qt.protocol usr/share/kde4/services/

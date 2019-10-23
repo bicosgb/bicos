@@ -1,0 +1,81 @@
+policy_module(bicoscoin, 1.100.1)
+
+########################################
+#
+# Declarations
+#
+
+type bicoscoin_t;
+type bicoscoin_exec_t;
+init_daemon_domain(bicoscoin_t, bicoscoin_exec_t)
+
+permissive bicoscoin_t;
+
+type bicoscoin_initrc_exec_t;
+init_script_file(bicoscoin_initrc_exec_t)
+
+type bicoscoin_conf_t;
+files_type(bicoscoin_conf_t)
+
+type bicoscoin_var_lib_t;
+files_type(bicoscoin_var_lib_t)
+
+type bicoscoin_var_run_t;
+files_type(bicoscoin_var_run_t)
+
+type bicoscoin_port_t;
+corenet_port(bicoscoin_port_t)
+
+########################################
+#
+# bicoscoin local policy
+#
+allow bicoscoin_t self:process { fork };
+
+allow bicoscoin_t self:fifo_file rw_fifo_file_perms;
+allow bicoscoin_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(bicoscoin_t, bicoscoin_conf_t, bicoscoin_conf_t)
+manage_files_pattern(bicoscoin_t, bicoscoin_conf_t, bicoscoin_conf_t)
+
+manage_dirs_pattern(bicoscoin_t, bicoscoin_var_lib_t, bicoscoin_var_lib_t)
+manage_files_pattern(bicoscoin_t, bicoscoin_var_lib_t, bicoscoin_var_lib_t)
+files_var_lib_filetrans(bicoscoin_t, bicoscoin_var_lib_t, { dir file })
+
+manage_dirs_pattern(bicoscoin_t, bicoscoin_var_run_t, bicoscoin_var_run_t)
+manage_files_pattern(bicoscoin_t, bicoscoin_var_run_t, bicoscoin_var_run_t)
+
+sysnet_dns_name_resolve(bicoscoin_t)
+corenet_all_recvfrom_unlabeled(bicoscoin_t)
+
+allow bicoscoin_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(bicoscoin_t)
+corenet_tcp_sendrecv_generic_node(bicoscoin_t)
+corenet_tcp_sendrecv_all_ports(bicoscoin_t)
+corenet_tcp_bind_generic_node(bicoscoin_t)
+
+gen_require(`
+    type bicoscoin_port_t;
+')
+allow bicoscoin_t bicoscoin_port_t:tcp_socket name_bind;
+
+gen_require(`
+    type bicoscoin_port_t;
+')
+allow bicoscoin_t bicoscoin_port_t:tcp_socket name_connect;
+
+domain_use_interactive_fds(bicoscoin_t)
+
+files_read_etc_files(bicoscoin_t)
+
+miscfiles_read_localization(bicoscoin_t)
+
+sysnet_dns_name_resolve(bicoscoin_t)
+
+allow bicoscoin_t bicoscoin_exec_t:file execute_no_trans;
+allow bicoscoin_t self:process setsched;
+corecmd_exec_ls(bicoscoin_t)
+corenet_tcp_connect_http_port(bicoscoin_t)
+dev_read_urand(bicoscoin_t)
+fs_getattr_xattr_fs(bicoscoin_t)
+kernel_read_system_state(bicoscoin_t)

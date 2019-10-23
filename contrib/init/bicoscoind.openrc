@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/bicoscoin/.bicoscoin" ]; then
+	BICOSCOIND_DEFAULT_DATADIR="/var/lib/bicoscoin/.bicoscoin"
+else
+	BICOSCOIND_DEFAULT_DATADIR="/var/lib/bicoscoind"
+fi
+
+BICOSCOIND_CONFIGFILE=${BICOSCOIND_CONFIGFILE:-/etc/bicoscoin/bicoscoincore.conf}
+BICOSCOIND_PIDDIR=${BICOSCOIND_PIDDIR:-/var/run/bicoscoind}
+BICOSCOIND_PIDFILE=${BICOSCOIND_PIDFILE:-${BICOSCOIND_PIDDIR}/bicoscoind.pid}
+BICOSCOIND_DATADIR=${BICOSCOIND_DATADIR:-${BICOSCOIND_DEFAULT_DATADIR}}
+BICOSCOIND_USER=${BICOSCOIND_USER:-${BICOSCOIN_USER:-bicoscoin}}
+BICOSCOIND_GROUP=${BICOSCOIND_GROUP:-bicoscoin}
+BICOSCOIND_BIN=${BICOSCOIND_BIN:-/usr/bin/bicoscoind}
+BICOSCOIND_NICE=${BICOSCOIND_NICE:-${NICELEVEL:-0}}
+BICOSCOIND_OPTS="${BICOSCOIND_OPTS:-${BICOSCOIN_OPTS}}"
+
+name="BICOScoin Core Daemon"
+description="BICOScoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/bicoscoind"
+command_args="-pid=\"${BICOSCOIND_PIDFILE}\" \
+		-conf=\"${BICOSCOIND_CONFIGFILE}\" \
+		-datadir=\"${BICOSCOIND_DATADIR}\" \
+		-daemon \
+		${BICOSCOIND_OPTS}"
+
+required_files="${BICOSCOIND_CONFIGFILE}"
+start_stop_daemon_args="-u ${BICOSCOIND_USER} \
+			-N ${BICOSCOIND_NICE} -w 2000"
+pidfile="${BICOSCOIND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${BICOSCOIND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BICOSCOIND_USER}:${BICOSCOIND_GROUP}" \
+	"${BICOSCOIND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BICOSCOIND_USER}:${BICOSCOIND_GROUP}" \
+	"${BICOSCOIND_PIDDIR}"
+
+	checkpath -f \
+	-o ${BICOSCOIND_USER}:${BICOSCOIND_GROUP} \
+	-m 0660 \
+	${BICOSCOIND_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${BICOSCOIND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run bicoscoind."
+		eerror "The setting must appear in ${BICOSCOIND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"BICOScoin Core Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=BICOScoin Core
+Comment=Connect to the BICOScoin Core P2P Network
+Comment[de]=Verbinde mit dem BICOScoin peer-to-peer Netzwerk
+Comment[fr]=BICOScoin, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=BICOScoin, eşten eşe kriptografik sanal para birimi
+Exec=bicoscoin-qt %u
+Terminal=false
+Type=Application
+Icon=bicoscoin128
+MimeType=x-scheme-handler/bicoscoincore;
+Categories=Office;Finance;
